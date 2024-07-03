@@ -7,6 +7,21 @@
     <title>OT PENDIENTES</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <style>
+        .table-state-column {
+            width: 20%;
+        }
+        .table-client-column {
+            width: 15%;
+        }
+        .checkbox-column {
+        text-align: center;
+        }
+
+        .checkbox-column input[type="checkbox"] {
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -25,12 +40,13 @@
             <thead>
                 <tr>
                     <th>Código</th>
-                    <th>Nombre Cliente</th>
+                    <th class="table-client-column">Nombre Cliente</th>
                     <th>Observaciones</th>
-                    <th>Corte</th>
-                    <th>Pulido</th>
-                    <th>Perforado</th>
-                    <th>Estado</th>
+                    <th class="checkbox-column">Corte</th>
+                    <th class="checkbox-column">Pulido</th>
+                    <th class="checkbox-column">Perforado</th>
+                    <th class="checkbox-column">Pintado</th>
+                    <th class="table-state-column">Estado</th>
                 </tr>
             </thead>
             <tbody id="albaranescli-body">
@@ -54,6 +70,12 @@
                         <td>
                             <label>
                                 <input type="checkbox" {{ $albaran->perforado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'perforado')"/>
+                                <span></span>
+                            </label>
+                        </td>
+                        <td>
+                            <label>
+                                <input type="checkbox" {{ $albaran->pintado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'pintado')"/>
                                 <span></span>
                             </label>
                         </td>

@@ -1,14 +1,15 @@
 <?php
-// routes/web.php
 
-// routes/web.php
-
+use App\Http\Controllers\ProfileController;
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 use App\Http\Controllers\AlbaranescliController;
 use App\Http\Controllers\CheckboxStateController;
 
 // Ruta para cargar la vista HTML de Albaranescli a través del controlador
-Route::get('/albaranescli', [AlbaranescliController::class, 'index'])->name('albaranescli.index');
+//Route::get('/albaranescli', [AlbaranescliController::class, 'index'])->name('albaranescli.index');
+Route::get('/albaranescli', [AlbaranescliController::class, 'index'])->name('albaranescli.index')->middleware('auth');
 
 // Ruta para manejar las actualizaciones de los checkboxes
 Route::post('/update-checkbox', [CheckboxStateController::class, 'update'])->name('checkbox.update');
@@ -22,4 +23,35 @@ Route::post('/update-estado', [CheckboxStateController::class, 'updateEstado'])-
 // Ruta adicional para cargar la vista HTML sin pasar por el controlador (puedes cambiar la URL si deseas)
 Route::get('/albaranescli/view', function () {
     return view('albaranescli.index');
-})->name('albaranescli.view'); // Nombre opcional para la ruta
+})->name('albaranescli.view'); // Nombre opcional para la ruta  
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+Route::get('/', function () {
+    return Inertia::render('Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => false,
+        'laravelVersion' => Application::VERSION,
+        'phpVersion' => PHP_VERSION,
+    ]);
+});
+
+Route::get('/dashboard', function () {
+    return Inertia::render('Dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
