@@ -1,4 +1,3 @@
-<!-- resources/views/albaranescli/index.blade.php -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,7 +14,7 @@
             width: 15%;
         }
         .checkbox-column {
-        text-align: center;
+            text-align: center;
         }
 
         .checkbox-column input[type="checkbox"] {
@@ -52,7 +51,10 @@
             <tbody id="albaranescli-body">
                 @foreach ($albaranescli as $albaran)
                     <tr>
-                        <td>{{ $albaran->codigo }}</td>
+                        <td>
+                            <span class="short-code">{{ substr($albaran->codigo, -5) }}</span>
+                            <input type="hidden" value="{{ $albaran->codigo }}">
+                        </td>
                         <td>{{ $albaran->nombrecliente }}</td>
                         <td>{{ $albaran->observaciones }}</td>
                         <td>
@@ -102,7 +104,10 @@
                             data.forEach(albaran => {
                                 const tr = document.createElement('tr');
                                 tr.innerHTML = `
-                                    <td>${albaran.codigo}</td>
+                                    <td>
+                                        <span class="short-code">${albaran.codigo.slice(-5)}</span>
+                                        <input type="hidden" value="${albaran.codigo}">
+                                    </td>
                                     <td>${albaran.nombrecliente}</td>
                                     <td>${albaran.observaciones}</td>
                                     <td>
@@ -122,6 +127,15 @@
                                             <input type="checkbox" ${albaran.perforado ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'perforado')"/>
                                             <span></span>
                                         </label>
+                                    </td>
+                                    <td>
+                                        <label>
+                                            <input type="checkbox" ${albaran.pintado ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'pintado')"/>
+                                            <span></span>
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="estado" value="${albaran.estado}" onkeypress="updateEstado(event, this, '${albaran.codigo}')">
                                     </td>
                                 `;
                                 tbody.appendChild(tr);
@@ -193,7 +207,7 @@
                     console.error('Error:', error);
                 });
             }
-    }
+        }
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>

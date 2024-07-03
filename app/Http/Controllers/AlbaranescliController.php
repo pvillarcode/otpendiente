@@ -48,8 +48,8 @@ class AlbaranescliController extends Controller
     public function search(Request $request)
     {
         $albaranescli = Albaranescli::where('idestado', 7);
+        $query = $request->input('query');
         
-
         if (!empty($query)) {
             $albaranescli = $albaranescli->where('codigo', 'LIKE', "%{$query}%");
         }
@@ -57,20 +57,25 @@ class AlbaranescliController extends Controller
         $albaranescli = $albaranescli->select('codigo', 'nombrecliente', 'observaciones')
                                      ->get();
 
-                                     
         $checkboxStates = CheckboxState::whereIn('codigo', $albaranescli->pluck('codigo'))->get();
         foreach ($albaranescli as $albaran) {
             $state = $checkboxStates->where('codigo', $albaran->codigo)->first();
             if ($state) {
                 $albaran->corte = $state->corte;
                 $albaran->pulido = $state->pulido;
+                $albaran->pintado = $state->pintado;
                 $albaran->perforado = $state->perforado;
+                if(!empty($state->estado)){
+                    $albaran->estado = $state->estado;
+                } else {
+                    $albaran->estado = '';
+                }
             } else {
                 $albaran->corte = false;
                 $albaran->pulido = false;
                 $albaran->perforado = false;
-                $albaran->pintado = $state->pintado;
                 $albaran->pintado = false;
+                $albaran->estado = '';
             }
         }
         return response()->json($albaranescli);
