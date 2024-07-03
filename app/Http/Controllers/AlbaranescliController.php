@@ -31,12 +31,14 @@ class AlbaranescliController extends Controller
                 $albaran->corte = $state->corte;
                 $albaran->pulido = $state->pulido;
                 $albaran->perforado = $state->perforado;
+                $albaran->pintado = $state->pintado;
                 $albaran->estado = $state->estado;
 
             } else {
                 $albaran->corte = false;
                 $albaran->pulido = false;
                 $albaran->perforado = false;
+                $albaran->pintado = false;
                 $albaran->perforado = '';
             }
         }
@@ -67,6 +69,8 @@ class AlbaranescliController extends Controller
                 $albaran->corte = false;
                 $albaran->pulido = false;
                 $albaran->perforado = false;
+                $albaran->pintado = $state->pintado;
+                $albaran->pintado = false;
             }
         }
         return response()->json($albaranescli);

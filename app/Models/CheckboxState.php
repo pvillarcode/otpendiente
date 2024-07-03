@@ -10,7 +10,7 @@ class CheckboxState extends Model
     protected $connection = 'sqlite'; // Conexión a SQLite
     protected $table = 'checkbox_states'; // Nombre de la tabla en SQLite
     protected $primaryKey = 'codigo'; // Clave primaria en SQLite
-    protected $fillable = ['codigo', 'corte', 'pulido', 'perforado','estado']; // Campos llenables
+    protected $fillable = ['codigo', 'corte', 'pulido', 'perforado','estado','pintado']; // Campos llenables
     public $timestamps = true;
 
     protected $casts = [
@@ -18,6 +18,7 @@ class CheckboxState extends Model
         'corte' => 'boolean',
         'pulido' => 'boolean',
         'perforado' => 'boolean',
+        'pintado' => 'boolean',
         'estado' => 'string'
     ];
 
