@@ -92,10 +92,11 @@
                     <th>Observaciones</th>
                     <th>Ingreso</th>
                     <th>Compromiso</th>
-                    <th class="checkbox-column">Corte</th>
-                    <th class="checkbox-column">Pulido</th>
-                    <th class="checkbox-column">Perforado</th>
-                    <th class="checkbox-column">Pintado</th>
+                    <th class="checkbox-column">CORT</th>
+                    <th class="checkbox-column">PULI</th>
+                    <th class="checkbox-column">PINT</th>
+                    <th class="checkbox-column">CURV</th>
+                    <th class="checkbox-column">LAM</th>
                     <th class="table-state-column">Nota</th>
                 </tr>
             </thead>
@@ -124,13 +125,19 @@
                         </td>
                         <td>
                             <label>
-                                <input type="checkbox" {{ $albaran->perforado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'perforado')"/>
+                                <input type="checkbox" {{ $albaran->pintado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'pintado')"/>
                                 <span></span>
                             </label>
                         </td>
                         <td>
                             <label>
-                                <input type="checkbox" {{ $albaran->pintado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'pintado')"/>
+                                <input type="checkbox" {{ $albaran->curvado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'curvado')"/>
+                                <span></span>
+                            </label>
+                        </td>
+                        <td>
+                            <label>
+                                <input type="checkbox" {{ $albaran->laminado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'laminado')"/>
                                 <span></span>
                             </label>
                         </td>

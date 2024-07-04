@@ -92,10 +92,11 @@
                     <th>Observaciones</th>
                     <th>Ingreso</th>
                     <th>Compromiso</th>
-                    <th class="checkbox-column">Corte</th>
-                    <th class="checkbox-column">Pulido</th>
-                    <th class="checkbox-column">Perforado</th>
-                    <th class="checkbox-column">Pintado</th>
+                    <th class="checkbox-column">CORT</th>
+                    <th class="checkbox-column">PULI</th>
+                    <th class="checkbox-column">PERF</th>
+                    <th class="checkbox-column">PINT</th>
+                    <th class="checkbox-column">EMP</th>
                     <th class="table-state-column">Nota</th>
                 </tr>
             </thead>
@@ -131,6 +132,12 @@
                         <td>
                             <label>
                                 <input type="checkbox" {{ $albaran->pintado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'pintado')"/>
+                                <span></span>
+                            </label>
+                        </td>
+                        <td>
+                            <label>
+                                <input type="checkbox" {{ $albaran->empavonado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'empavonado')"/>
                                 <span></span>
                             </label>
                         </td>

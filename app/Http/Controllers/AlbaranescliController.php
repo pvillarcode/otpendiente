@@ -82,10 +82,14 @@ class AlbaranescliController extends Controller
         foreach ($albaranescli as $albaran) {
             $state = $checkboxStates->where('codigo', $albaran->codigo)->first();
             if ($state) {
+                $albaran->matriz = $state->matriz;
                 $albaran->corte = $state->corte;
                 $albaran->pulido = $state->pulido;
                 $albaran->perforado = $state->perforado;
                 $albaran->pintado = $state->pintado;
+                $albaran->curvado = $state->curvado;
+                $albaran->empavonado = $state->empavonado;
+                $albaran->laminado = $state->laminado;
                 if(!empty($albaran->estado)){
                     $albaran->estado = $state->estado;
                 } else {
@@ -94,10 +98,14 @@ class AlbaranescliController extends Controller
                  
 
             } else {
+                $albaran->matriz = false;
                 $albaran->corte = false;
                 $albaran->pulido = false;
                 $albaran->perforado = false;
                 $albaran->pintado = false;
+                $albaran->curvado = false;
+                $albaran->laminado = false;
+                $albaran->empavonado = false;
                 $albaran->estado = '';
             }
         }
@@ -120,20 +128,28 @@ class AlbaranescliController extends Controller
         foreach ($albaranescli as $albaran) {
             $state = $checkboxStates->where('codigo', $albaran->codigo)->first();
             if ($state) {
+                $albaran->matriz = $state->matriz;
                 $albaran->corte = $state->corte;
                 $albaran->pulido = $state->pulido;
-                $albaran->pintado = $state->pintado;
                 $albaran->perforado = $state->perforado;
+                $albaran->empavonado = $state->empavonado;
+                $albaran->pintado = $state->pintado;
+                $albaran->curvado = $state->curvado;
+                $albaran->laminado = $state->laminado;
                 if(!empty($state->estado)){
                     $albaran->estado = $state->estado;
                 } else {
                     $albaran->estado = '';
                 }
             } else {
+                $albaran->matriz = false;
                 $albaran->corte = false;
                 $albaran->pulido = false;
                 $albaran->perforado = false;
                 $albaran->pintado = false;
+                $albaran->curvado = false;
+                $albaran->empavonado = false;
+                $albaran->laminado = false;
                 $albaran->estado = '';
             }
         }
