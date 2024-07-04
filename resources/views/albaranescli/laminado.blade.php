@@ -74,8 +74,8 @@
         <nav class="nav-extended">
         <div class="nav-wrapper">
             <ul class="tabs tabs-transparent">
-            <li class="tab"><a href="/albaranescli" class="active">Templados</a></li>
-            <li class="tab"><a href="/laminado">Laminados</a></li>
+            <li class="tab"><a href="/albaranescli">Templados</a></li>
+            <li class="tab"><a href="/laminado" class="active">Laminados</a></li>
             </ul>
         </div>
         </nav>
@@ -145,59 +145,6 @@
 
     <script>
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('search');
-            searchInput.addEventListener('input', function() {
-                const query = searchInput.value;
-                if (query.length >= 3 || query.length === 0) {
-                    fetch('/search-albaranescli?query=' + query)
-                        .then(response => response.json())
-                        .then(data => {
-                            const tbody = document.getElementById('albaranescli-body');
-                            tbody.innerHTML = '';
-                            data.forEach(albaran => {
-                                const tr = document.createElement('tr');
-                                tr.innerHTML = `
-                                    <td>
-                                        <span class="short-code">${albaran.codigo.slice(-5)}</span>
-                                        <input type="hidden" value="${albaran.codigo}">
-                                    </td>
-                                    <td>${albaran.nombrecliente}</td>
-                                    <td>${albaran.observaciones}</td>
-                                    <td>
-                                        <label>
-                                            <input type="checkbox" ${albaran.corte ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'corte')"/>
-                                            <span></span>
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <label>
-                                            <input type="checkbox" ${albaran.pulido ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'pulido')"/>
-                                            <span></span>
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <label>
-                                            <input type="checkbox" ${albaran.perforado ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'perforado')"/>
-                                            <span></span>
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <label>
-                                            <input type="checkbox" ${albaran.pintado ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'pintado')"/>
-                                            <span></span>
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <input type="text" name="estado" value="${albaran.estado}" onkeypress="updateEstado(event, this, '${albaran.codigo}')">
-                                    </td>
-                                `;
-                                tbody.appendChild(tr);
-                            });
-                        });
-                }
-            });
-        });
 
         function updateCheckboxState(checkbox, codigo, columna) {
             const valor = checkbox.checked ? 1 : 0;
