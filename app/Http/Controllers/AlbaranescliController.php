@@ -1,13 +1,12 @@
 <?php
 
-// app/Http/Controllers/AlbaranescliController.php
-// app/Http/Controllers/AlbaranescliController.php
-
 namespace App\Http\Controllers;
 
 use App\Models\Albaranescli;
 use App\Models\CheckboxState;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AlbaranescliController extends Controller
 {
@@ -18,9 +17,64 @@ class AlbaranescliController extends Controller
      */
     public function index()
     {
-        $albaranescli = Albaranescli::where('idestado', 7)
-                                    ->select('codigo', 'nombrecliente', 'observaciones')
-                                    ->get();
+        $defaultRequest = new Request(['category' => 'templados']);
+        $albaranescli = $this->getDataForTab($defaultRequest);
+
+        return view('albaranescli.index', compact('albaranescli'));
+    }
+
+    public function laminado()
+    {
+        $defaultRequest = new Request(['category' => 'laminados']);
+        $albaranescli = $this->getDataForTab($defaultRequest);
+
+        // Aquí puedes implementar la lógica para obtener los datos específicos de "laminado"
+        return view('albaranescli.laminado', compact('albaranescli')); // Ajusta el nombre de la vista según tu aplicación
+    }
+
+    /**
+     * Obtiene datos según la categoría seleccionada.
+     *
+     * @param string $category
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getDataForTab(Request $request)
+    {
+        $category = $request->input('category'); 
+        switch ($category) {
+            case 'templados':
+                $codfamilias = ['CRISCUR', 'CRISLAM'];
+                break;
+            case 'laminados':
+                $codfamilias = ['CRISTEM', 'MAQ','MONOLITI'];
+                break;
+            case 'stock':
+                $codfamilias = ['categoria_para_stock'];
+                break;
+            default:
+                $codfamilias = [];
+                break;
+        }
+
+        $albaranescli = Albaranescli::select('albaranescli.codigo', 'albaranescli.nombrecliente', 'albaranescli.observaciones', 'albaranescli.fecha as ingreso', 'albaranescli.numero2 as compromiso', DB::raw('MAX(albaranescli.fecha) as fecha_maxima'))
+            ->join('lineasalbaranescli', 'albaranescli.idalbaran', '=', 'lineasalbaranescli.idalbaran')
+            ->join('productos', 'lineasalbaranescli.idproducto', '=', 'productos.idproducto')
+            ->whereIn('productos.codfamilia', $codfamilias)
+            ->where('albaranescli.idestado', 7)
+            ->groupBy('albaranescli.codigo', 'albaranescli.nombrecliente', 'albaranescli.observaciones','albaranescli.fecha', 'albaranescli.numero2')
+            ->orderBy('fecha_maxima', 'desc')
+            ->distinct()
+            ->get();
+        
+        foreach ($albaranescli as $albaran) {
+            $albaran->ingreso = Carbon::parse($albaran->ingreso)->isoFormat('MMM D');
+        }
+        foreach ($albaranescli as $albaran) {
+            if(!empty($albaran->compromiso)){
+                $fechaCompromiso = Carbon::createFromFormat('d/m/Y', $albaran->compromiso);
+                $albaran->compromiso = Carbon::parse($fechaCompromiso)->isoFormat('MMM D');
+            }
+        }
 
         $checkboxStates = CheckboxState::whereIn('codigo', $albaranescli->pluck('codigo'))->get();
 
@@ -32,19 +86,24 @@ class AlbaranescliController extends Controller
                 $albaran->pulido = $state->pulido;
                 $albaran->perforado = $state->perforado;
                 $albaran->pintado = $state->pintado;
-                $albaran->estado = $state->estado;
+                if(!empty($albaran->estado)){
+                    $albaran->estado = $state->estado;
+                } else {
+                    $albaran->estado = '';
+                }
+                 
 
             } else {
                 $albaran->corte = false;
                 $albaran->pulido = false;
                 $albaran->perforado = false;
                 $albaran->pintado = false;
-                $albaran->perforado = '';
+                $albaran->estado = '';
             }
         }
-        return view('albaranescli.index', compact('albaranescli'));
-    }
 
+        return $albaranescli;
+    }
     public function search(Request $request)
     {
         $albaranescli = Albaranescli::where('idestado', 7);
@@ -80,6 +139,5 @@ class AlbaranescliController extends Controller
         }
         return response()->json($albaranescli);
     }
+    // Otros métodos como search y updateCheckboxState se mantienen igual
 }
-
-

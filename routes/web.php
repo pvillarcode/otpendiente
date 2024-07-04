@@ -10,6 +10,8 @@ use App\Http\Controllers\CheckboxStateController;
 // Ruta para cargar la vista HTML de Albaranescli a través del controlador
 //Route::get('/albaranescli', [AlbaranescliController::class, 'index'])->name('albaranescli.index');
 Route::get('/albaranescli', [AlbaranescliController::class, 'index'])->name('albaranescli.index')->middleware('auth');
+Route::get('/laminado', [AlbaranescliController::class, 'laminado'])->name('albaranescli.laminado')->middleware('auth');
+
 
 // Ruta para manejar las actualizaciones de los checkboxes
 Route::post('/update-checkbox', [CheckboxStateController::class, 'update'])->name('checkbox.update');
@@ -17,6 +19,7 @@ Route::post('/update-checkbox', [CheckboxStateController::class, 'update'])->nam
 Route::get('/search-albaranescli', [AlbaranescliController::class, 'search'])->name('albaranescli.search');
 
 Route::post('/update-estado', [CheckboxStateController::class, 'updateEstado'])->name('estado.update');
+Route::get('/get-data-for-tab', [AlbaranescliController::class, 'getDataForTab'])->name('get-data-for-tab');
 
 
 
