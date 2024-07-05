@@ -18,9 +18,9 @@
                 <tr>
                     <th>OT</th>
                     <th class="table-client-column">Cliente</th>
-                    <th>Observaciones</th>
-                    <th>Ingreso</th>
-                    <th>Compromiso</th>
+                    <th>OBS</th>
+                    <th>F. ING</th>
+                    <th>F. COMP</th>
                     <th class="checkbox-column">CORT</th>
                     <th class="checkbox-column">PULI</th>
                     <th class="checkbox-column">PINT</th>
