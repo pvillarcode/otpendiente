@@ -122,3 +122,7 @@
     thead {
         top: 3px; /* Ajusta este valor a la altura de tu barra de navegación */
     }
+
+    .short-code {
+    font-size: 19px; /* o el tamaño que prefieras */
+    }
