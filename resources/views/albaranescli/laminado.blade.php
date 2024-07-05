@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Templados')
+@section('title', 'Laminados')
 
 @section('additional_styles')
 <style>
@@ -21,6 +21,7 @@
                     <th>OBS</th>
                     <th>F. ING</th>
                     <th>F. COMP</th>
+                    <th class="checkbox-column">MATR</th>
                     <th class="checkbox-column">CORT</th>
                     <th class="checkbox-column">PULI</th>
                     <th class="checkbox-column">PINT</th>
@@ -36,10 +37,16 @@
                             <span class="short-code">{{ substr($albaran->codigo, -4) }}</span>
                             <input type="hidden" value="{{ $albaran->codigo }}">
                         </td>
-                        <td>{{ $albaran->nombrecliente }}</td>
-                        <td>{{ $albaran->observaciones }}</td>
+                        <td><span class="text-desc">{{ $albaran->nombrecliente }}</span></td>
+                        <td><span class="text-desc">{{ $albaran->observaciones }}</span></td>
                         <td>{{ $albaran->ingreso }}</td>
                         <td>{{ $albaran->compromiso }}</td>
+                        <td>
+                            <label>
+                                <input type="checkbox" {{ $albaran->matriz ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'matriz')"/>
+                                <span></span>
+                            </label>
+                        </td>
                         <td>
                             <label>
                                 <input type="checkbox" {{ $albaran->corte ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'corte')"/>
@@ -104,10 +111,16 @@
                                         <span class="short-code">${albaran.codigo.slice(-4)}</span>
                                         <input type="hidden" value="${albaran.codigo}">
                                     </td>
-                                    <td>${albaran.nombrecliente}</td>
-                                    <td>${albaran.observaciones}</td>
+                                    <td><span class="text-desc">${albaran.nombrecliente}</span></td>
+                                    <td><span class="text-desc">${albaran.observaciones}</span></td>
                                     <td>${albaran.ingreso}</td>
                                     <td>${albaran.compromiso}</td>
+                                    <td>
+                                        <label>
+                                            <input type="checkbox" ${albaran.matriz ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'matriz')"/>
+                                            <span></span>
+                                        </label>
+                                    </td>
                                     <td>
                                         <label>
                                             <input type="checkbox" ${albaran.corte ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'corte')"/>

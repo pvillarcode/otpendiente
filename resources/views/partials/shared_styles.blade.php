@@ -126,3 +126,7 @@
     .short-code {
     font-size: 19px; /* o el tamaño que prefieras */
     }
+
+    .text-desc {
+    font-size: 13px; /* o el tamaño que prefieras */
+    }
