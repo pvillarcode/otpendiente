@@ -109,13 +109,13 @@ class CheckboxStateController extends Controller
             if ($checkboxState) {
                 Log::info("Updating existing record for codigo: {$codigo}");
                 $checkboxState->estado = $estado;
-                $checkboxState->codigo = $codigo;  // Explicitly set the codigo
+                $checkboxState->codigo = $codigo; 
                 $checkboxState->save();
             } else {
                 Log::info("Creating new record for codigo: {$codigo}");
                 $checkboxState = new CheckboxState();
+                $checkboxState->codigo = $codigo;  
                 $checkboxState->estado = $estado;
-                $checkboxState->$columna = $valor;
                 $checkboxState->save();
             }
 

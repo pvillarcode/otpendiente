@@ -7,6 +7,7 @@ use App\Models\CheckboxState;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Carbon\Exceptions\InvalidFormatException;
 
 class AlbaranescliController extends Controller
 {
@@ -43,10 +44,10 @@ class AlbaranescliController extends Controller
         $category = $request->input('category'); 
         switch ($category) {
             case 'templados':
-                $codfamilias = ['CRISCUR', 'CRISLAM'];
+                $codfamilias = ['CRISTEM', 'MAQ','MONOLITI'];               
                 break;
             case 'laminados':
-                $codfamilias = ['CRISTEM', 'MAQ','MONOLITI'];
+                $codfamilias = ['CRISCURV', 'CRISLAM'];
                 break;
             case 'stock':
                 $codfamilias = ['categoria_para_stock'];
@@ -66,13 +67,21 @@ class AlbaranescliController extends Controller
             ->distinct()
             ->get();
         
+        Carbon::setLocale('es');
         foreach ($albaranescli as $albaran) {
             $albaran->ingreso = Carbon::parse($albaran->ingreso)->isoFormat('MMM D');
         }
         foreach ($albaranescli as $albaran) {
-            if(!empty($albaran->compromiso)){
-                $fechaCompromiso = Carbon::createFromFormat('d/m/Y', $albaran->compromiso);
-                $albaran->compromiso = Carbon::parse($fechaCompromiso)->isoFormat('MMM D');
+            if (!empty($albaran->compromiso)) {
+                try {
+                    // Intenta crear la fecha con el formato esperado
+                    $fechaCompromiso = Carbon::createFromFormat('d/m/Y', $albaran->compromiso);
+                    $albaran->compromiso = $fechaCompromiso->isoFormat('MMM D');
+                } catch (InvalidFormatException $e) {
+                    // Si la fecha no está en el formato esperado, puedes decidir cómo manejarla
+                    // Por ejemplo, podrías dejar el valor sin cambios o asignar una fecha por defecto
+                    $albaran->compromiso = 'Fecha inválida';
+                }
             }
         }
 
@@ -81,6 +90,7 @@ class AlbaranescliController extends Controller
         // Asignar los estados de checkboxes a cada albarán
         foreach ($albaranescli as $albaran) {
             $state = $checkboxStates->where('codigo', $albaran->codigo)->first();
+
             if ($state) {
                 $albaran->matriz = $state->matriz;
                 $albaran->corte = $state->corte;
@@ -90,7 +100,7 @@ class AlbaranescliController extends Controller
                 $albaran->curvado = $state->curvado;
                 $albaran->empavonado = $state->empavonado;
                 $albaran->laminado = $state->laminado;
-                if(!empty($albaran->estado)){
+                if(!empty($state->estado)){
                     $albaran->estado = $state->estado;
                 } else {
                     $albaran->estado = '';
@@ -109,21 +119,66 @@ class AlbaranescliController extends Controller
                 $albaran->estado = '';
             }
         }
-
+        
         return $albaranescli;
     }
+
     public function search(Request $request)
     {
-        $albaranescli = Albaranescli::where('idestado', 7);
         $query = $request->input('query');
-        
-        if (!empty($query)) {
-            $albaranescli = $albaranescli->where('codigo', 'LIKE', "%{$query}%");
+        $category = $request->input('category', 'templados');
+    
+        // Define los codfamilias según la categoría
+        switch ($category) {
+            case 'templados':                
+                $codfamilias = ['CRISTEM', 'MAQ', 'MONOLITI'];
+                break;
+            case 'laminados':
+                $codfamilias = ['CRISCURV', 'CRISLAM'];
+                break;
+            case 'stock':
+                $codfamilias = ['categoria_para_stock'];
+                break;
+            default:
+                $codfamilias = [];
+                break;
         }
     
-        $albaranescli = $albaranescli->select('codigo', 'nombrecliente', 'observaciones')
-                                     ->get();
+        // Realiza la consulta con los filtros necesarios
+        $albaranescli = Albaranescli::select('albaranescli.codigo', 'albaranescli.nombrecliente', 'albaranescli.observaciones', 'albaranescli.fecha as ingreso', 'albaranescli.numero2 as compromiso', DB::raw('MAX(albaranescli.fecha) as fecha_maxima'))
+            ->join('lineasalbaranescli', 'albaranescli.idalbaran', '=', 'lineasalbaranescli.idalbaran')
+            ->join('productos', 'lineasalbaranescli.idproducto', '=', 'productos.idproducto')
+            ->whereIn('productos.codfamilia', $codfamilias)
+            ->where('albaranescli.idestado', 7)
+            ->groupBy('albaranescli.codigo', 'albaranescli.nombrecliente', 'albaranescli.observaciones', 'albaranescli.fecha', 'albaranescli.numero2')
+            ->orderBy('fecha_maxima', 'desc')
+            ->distinct();
+    
+        if (!empty($query)) {
+            $albaranescli = $albaranescli->where('albaranescli.codigo', 'LIKE', "%{$query}%");
+        }
+    
+        $albaranescli = $albaranescli->get();
 
+        Carbon::setLocale('es');
+        foreach ($albaranescli as $albaran) {
+            $albaran->ingreso = Carbon::parse($albaran->ingreso)->isoFormat('MMM D');
+        }
+        foreach ($albaranescli as $albaran) {
+            if (!empty($albaran->compromiso)) {
+                try {
+                    // Intenta crear la fecha con el formato esperado
+                    $fechaCompromiso = Carbon::createFromFormat('d/m/Y', $albaran->compromiso);
+                    $albaran->compromiso = $fechaCompromiso->isoFormat('MMM D');
+                } catch (InvalidFormatException $e) {
+                    // Si la fecha no está en el formato esperado, puedes decidir cómo manejarla
+                    // Por ejemplo, podrías dejar el valor sin cambios o asignar una fecha por defecto
+                    $albaran->compromiso = 'Fecha inválida';
+                }
+            }
+        }
+        
+        // Obtén los estados de los checkboxes
         $checkboxStates = CheckboxState::whereIn('codigo', $albaranescli->pluck('codigo'))->get();
         foreach ($albaranescli as $albaran) {
             $state = $checkboxStates->where('codigo', $albaran->codigo)->first();
@@ -136,11 +191,7 @@ class AlbaranescliController extends Controller
                 $albaran->pintado = $state->pintado;
                 $albaran->curvado = $state->curvado;
                 $albaran->laminado = $state->laminado;
-                if(!empty($state->estado)){
-                    $albaran->estado = $state->estado;
-                } else {
-                    $albaran->estado = '';
-                }
+                $albaran->estado = $state->estado ?? '';
             } else {
                 $albaran->matriz = false;
                 $albaran->corte = false;
@@ -155,5 +206,6 @@ class AlbaranescliController extends Controller
         }
         return response()->json($albaranescli);
     }
+    
     // Otros métodos como search y updateCheckboxState se mantienen igual
 }
