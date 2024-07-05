@@ -35,11 +35,11 @@ class CheckboxUpdated implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('checkbox-updates');
+        return new Channel('checkbox-channel');
     }
 
     public function broadcastAs()
     {
-        return 'CheckboxUpdated';
+        return 'checkbox-updated';
     }
 }

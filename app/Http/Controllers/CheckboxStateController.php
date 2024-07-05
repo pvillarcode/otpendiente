@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\CheckboxState;
+use App\Events\CheckboxUpdated;
 
 class CheckboxStateController extends Controller
 {
@@ -46,7 +47,8 @@ class CheckboxStateController extends Controller
             }
     
             DB::commit();
-    
+            event(new CheckboxUpdated($checkboxState));
+
             Log::info("Executed queries: " . json_encode(DB::getQueryLog()));
             Log::info("Final checkbox state: " . $checkboxState->toJson());
     
@@ -120,7 +122,7 @@ class CheckboxStateController extends Controller
             }
 
             DB::commit();
-
+            event(new CheckboxUpdated($checkboxState));
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
             DB::rollBack();

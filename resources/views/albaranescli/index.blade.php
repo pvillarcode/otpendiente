@@ -36,8 +36,8 @@
                             <span class="short-code">{{ substr($albaran->codigo, -4) }}</span>
                             <input type="hidden" value="{{ $albaran->codigo }}">
                         </td>
-                        <td>{{ $albaran->nombrecliente }}</td>
-                        <td>{{ $albaran->observaciones }}</td>
+                        <td><span class="text-desc">{{ $albaran->nombrecliente }}</span></td>
+                        <td><span class="text-desc">{{ $albaran->observaciones }}</span></td>
                         <td>{{ $albaran->ingreso }}</td>
                         <td>{{ $albaran->compromiso }}</td>
                         <td>
@@ -102,8 +102,8 @@
                                         <span class="short-code">${albaran.codigo.slice(-4)}</span>
                                         <input type="hidden" value="${albaran.codigo}">
                                     </td>
-                                    <td>${albaran.nombrecliente}</td>
-                                    <td>${albaran.observaciones}</td>
+                                    <td><span class="text-desc">${albaran.nombrecliente}</span></td>
+                                    <td><span class="text-desc">${albaran.observaciones}</span></td>
                                     <td>${albaran.ingreso}</td>
                                     <td>${albaran.compromiso}</td>
                                     <td>

@@ -6,6 +6,7 @@
     <title>@yield('title', 'OT PENDIENTES')</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
     @yield('additional_styles')
     <style>
         /* Estilos compartidos aquí */

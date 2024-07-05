@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\AlbaranescliController;
 use App\Http\Controllers\CheckboxStateController;
+use App\Events\CheckboxUpdated;
 
 // Ruta para cargar la vista HTML de Albaranescli a través del controlador
 //Route::get('/albaranescli', [AlbaranescliController::class, 'index'])->name('albaranescli.index');
@@ -57,5 +58,21 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+/*
+Route::get('/testevent',function(){
+    return view('fireevent');
+});
+
+
+Route::post('/testevent',function(){
+    $name = request()->name;
+    event(new CheckboxUpdated($name));
+});
+
+Route::get('/welcome',function (){
+    return view('welcome');
+});*/
+
 
 require __DIR__.'/auth.php';

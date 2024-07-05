@@ -74,3 +74,34 @@ function updateEstado(event, input, codigo) {
         doUpdate();
     }
 }
+
+
+    const pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+        cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
+        encrypted: true
+    });
+
+    const channel = pusher.subscribe('checkbox-channel');
+    channel.bind('checkbox-updated', function(data) {
+        updateUIFromPusherEvent(data.checkboxState);
+    });
+
+    function updateUIFromPusherEvent(checkboxState) {
+        const row = document.querySelector(`tr input[type="hidden"][value="${checkboxState.codigo}"]`).closest('tr');
+        if (row) {
+            // Actualizar checkboxes
+            ['matriz','corte', 'pulido', 'perforado', 'pintado', 'empavonado','laminado'].forEach(field => {
+                const checkbox = row.querySelector(`input[type="checkbox"][onchange*="${field}"]`);
+                if (checkbox) {
+                    checkbox.checked = checkboxState[field];
+                }
+            });
+
+            // Actualizar estado
+            const estadoInput = row.querySelector('input[name="estado"]');
+            if (estadoInput) {
+                estadoInput.value = checkboxState.estado || '';
+            }
+        }
+    }
+
