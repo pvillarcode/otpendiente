@@ -57,13 +57,13 @@ class AlbaranescliController extends Controller
                 break;
         }
 
-        $albaranescli = Albaranescli::select('albaranescli.codigo', 'albaranescli.nombrecliente', 'albaranescli.observaciones', 'albaranescli.fecha as ingreso', 'albaranescli.numero2 as compromiso', DB::raw('MAX(albaranescli.fecha) as fecha_maxima'))
+        $albaranescli = Albaranescli::select('albaranescli.codigo', 'lineasalbaranescli.idalbaran', 'albaranescli.nombrecliente', 'albaranescli.observaciones', 'albaranescli.fecha as ingreso', 'albaranescli.numero2 as compromiso', DB::raw('MAX(albaranescli.fecha) as fecha_maxima'))
             ->join('lineasalbaranescli', 'albaranescli.idalbaran', '=', 'lineasalbaranescli.idalbaran')
             ->join('productos', 'lineasalbaranescli.idproducto', '=', 'productos.idproducto')
             ->whereIn('productos.codfamilia', $codfamilias)
             ->where('albaranescli.idestado', 7)
-            ->groupBy('albaranescli.codigo', 'albaranescli.nombrecliente', 'albaranescli.observaciones','albaranescli.fecha', 'albaranescli.numero2')
-            ->orderBy('fecha_maxima', 'desc')
+            ->groupBy('albaranescli.codigo', 'lineasalbaranescli.idalbaran','albaranescli.nombrecliente', 'albaranescli.observaciones','albaranescli.fecha', 'albaranescli.numero2')
+            ->orderBy('lineasalbaranescli.idalbaran', 'desc')
             ->distinct()
             ->get();
         
@@ -145,13 +145,13 @@ class AlbaranescliController extends Controller
         }
     
         // Realiza la consulta con los filtros necesarios
-        $albaranescli = Albaranescli::select('albaranescli.codigo', 'albaranescli.nombrecliente', 'albaranescli.observaciones', 'albaranescli.fecha as ingreso', 'albaranescli.numero2 as compromiso', DB::raw('MAX(albaranescli.fecha) as fecha_maxima'))
+        $albaranescli = Albaranescli::select('albaranescli.codigo', 'lineasalbaranescli.idalbaran', 'albaranescli.nombrecliente', 'albaranescli.observaciones', 'albaranescli.fecha as ingreso', 'albaranescli.numero2 as compromiso', DB::raw('MAX(albaranescli.fecha) as fecha_maxima'))
             ->join('lineasalbaranescli', 'albaranescli.idalbaran', '=', 'lineasalbaranescli.idalbaran')
             ->join('productos', 'lineasalbaranescli.idproducto', '=', 'productos.idproducto')
             ->whereIn('productos.codfamilia', $codfamilias)
             ->where('albaranescli.idestado', 7)
-            ->groupBy('albaranescli.codigo', 'albaranescli.nombrecliente', 'albaranescli.observaciones', 'albaranescli.fecha', 'albaranescli.numero2')
-            ->orderBy('fecha_maxima', 'desc')
+            ->groupBy('albaranescli.codigo', 'lineasalbaranescli.idalbaran', 'albaranescli.nombrecliente', 'albaranescli.observaciones', 'albaranescli.fecha', 'albaranescli.numero2')
+            ->orderBy('lineasalbaranescli.idalbaran', 'desc')
             ->distinct();
     
         if (!empty($query)) {
