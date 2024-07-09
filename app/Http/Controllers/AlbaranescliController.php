@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidFormatException;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use Carbon\Exceptions\InvalidFormatException;
 
 class AlbaranescliController extends Controller
 {
@@ -91,7 +94,9 @@ class AlbaranescliController extends Controller
         foreach ($albaranescli as $albaran) {
             $state = $checkboxStates->where('codigo', $albaran->codigo)->first();
 
+
             if ($state) {
+                $albaran->matriz = $state->matriz;
                 $albaran->matriz = $state->matriz;
                 $albaran->corte = $state->corte;
                 $albaran->pulido = $state->pulido;
@@ -106,8 +111,19 @@ class AlbaranescliController extends Controller
                     $albaran->estado = '';
                 }
                  
+                $albaran->pintado = $state->pintado;
+                $albaran->curvado = $state->curvado;
+                $albaran->empavonado = $state->empavonado;
+                $albaran->laminado = $state->laminado;
+                if(!empty($state->estado)){
+                    $albaran->estado = $state->estado;
+                } else {
+                    $albaran->estado = '';
+                }
+                 
 
             } else {
+                $albaran->matriz = false;
                 $albaran->matriz = false;
                 $albaran->corte = false;
                 $albaran->pulido = false;
@@ -117,8 +133,15 @@ class AlbaranescliController extends Controller
                 $albaran->laminado = false;
                 $albaran->empavonado = false;
                 $albaran->estado = '';
+                $albaran->pintado = false;
+                $albaran->curvado = false;
+                $albaran->laminado = false;
+                $albaran->empavonado = false;
+                $albaran->estado = '';
             }
         }
+        
+        return $albaranescli;
         
         return $albaranescli;
     }
@@ -156,8 +179,30 @@ class AlbaranescliController extends Controller
     
         if (!empty($query)) {
             $albaranescli = $albaranescli->where('albaranescli.codigo', 'LIKE', "%{$query}%");
+            $albaranescli = $albaranescli->where('albaranescli.codigo', 'LIKE', "%{$query}%");
         }
     
+        $albaranescli = $albaranescli->get();
+
+        Carbon::setLocale('es');
+        foreach ($albaranescli as $albaran) {
+            $albaran->ingreso = Carbon::parse($albaran->ingreso)->isoFormat('MMM D');
+        }
+        foreach ($albaranescli as $albaran) {
+            if (!empty($albaran->compromiso)) {
+                try {
+                    // Intenta crear la fecha con el formato esperado
+                    $fechaCompromiso = Carbon::createFromFormat('d/m/Y', $albaran->compromiso);
+                    $albaran->compromiso = $fechaCompromiso->isoFormat('MMM D');
+                } catch (InvalidFormatException $e) {
+                    // Si la fecha no está en el formato esperado, puedes decidir cómo manejarla
+                    // Por ejemplo, podrías dejar el valor sin cambios o asignar una fecha por defecto
+                    $albaran->compromiso = 'Fecha inválida';
+                }
+            }
+        }
+        
+        // Obtén los estados de los checkboxes
         $albaranescli = $albaranescli->get();
 
         Carbon::setLocale('es');
@@ -184,6 +229,7 @@ class AlbaranescliController extends Controller
             $state = $checkboxStates->where('codigo', $albaran->codigo)->first();
             if ($state) {
                 $albaran->matriz = $state->matriz;
+                $albaran->matriz = $state->matriz;
                 $albaran->corte = $state->corte;
                 $albaran->pulido = $state->pulido;
                 $albaran->perforado = $state->perforado;
@@ -192,7 +238,13 @@ class AlbaranescliController extends Controller
                 $albaran->curvado = $state->curvado;
                 $albaran->laminado = $state->laminado;
                 $albaran->estado = $state->estado ?? '';
+                $albaran->empavonado = $state->empavonado;
+                $albaran->pintado = $state->pintado;
+                $albaran->curvado = $state->curvado;
+                $albaran->laminado = $state->laminado;
+                $albaran->estado = $state->estado ?? '';
             } else {
+                $albaran->matriz = false;
                 $albaran->matriz = false;
                 $albaran->corte = false;
                 $albaran->pulido = false;
@@ -202,10 +254,17 @@ class AlbaranescliController extends Controller
                 $albaran->empavonado = false;
                 $albaran->laminado = false;
                 $albaran->estado = '';
+                $albaran->pintado = false;
+                $albaran->curvado = false;
+                $albaran->empavonado = false;
+                $albaran->laminado = false;
+                $albaran->estado = '';
             }
         }
         return response()->json($albaranescli);
     }
+    
+    // Otros métodos como search y updateCheckboxState se mantienen igual
     
     // Otros métodos como search y updateCheckboxState se mantienen igual
 }
