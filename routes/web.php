@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\AlbaranescliController;
+use App\Http\Controllers\FacturasController;
 use App\Http\Controllers\CheckboxStateController;
 use App\Events\CheckboxUpdated;
 
@@ -58,6 +59,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::get('/facturas', [FacturasController::class, 'index'])->name('facturas.index');
+Route::get('/facturas/detalle/{codigo?}', [FacturasController::class, 'detalleFactura'])->name('facturas.detalle');
+Route::post('/enviar-factura', [FacturasController::class, 'enviarFactura'])->name('enviar.factura');
 
 /*
 Route::get('/testevent',function(){

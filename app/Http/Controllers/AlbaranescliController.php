@@ -8,9 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidFormatException;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-use Carbon\Exceptions\InvalidFormatException;
 
 class AlbaranescliController extends Controller
 {
