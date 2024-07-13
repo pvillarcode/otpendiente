@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidFormatException;
 
+
 class AlbaranescliController extends Controller
 {
     /**
@@ -145,7 +146,7 @@ class AlbaranescliController extends Controller
 
     public function search(Request $request)
     {
-        $query = $request->input('query');
+        $searchQuery = $request->input('query');
         $category = $request->input('category', 'templados');
     
         // Define los codfamilias según la categoría
@@ -174,10 +175,12 @@ class AlbaranescliController extends Controller
             ->orderBy('lineasalbaranescli.idalbaran', 'desc')
             ->distinct();
     
-        if (!empty($query)) {
-            $albaranescli = $albaranescli->where('albaranescli.codigo', 'LIKE', "%{$query}%");
-            $albaranescli = $albaranescli->where('albaranescli.codigo', 'LIKE', "%{$query}%");
-        }
+            if (!empty($searchQuery)) {
+                $albaranescli = $albaranescli->where(function($query) use ($searchQuery) {
+                    $query->where(DB::raw('LOWER(albaranescli.codigo)'), 'LIKE', '%' . strtolower($searchQuery) . '%')
+                          ->orWhere(DB::raw('LOWER(albaranescli.nombrecliente)'), 'LIKE', '%' . strtolower($searchQuery) . '%');
+                });
+            }
     
         $albaranescli = $albaranescli->get();
 
@@ -199,26 +202,6 @@ class AlbaranescliController extends Controller
             }
         }
         
-        // Obtén los estados de los checkboxes
-        $albaranescli = $albaranescli->get();
-
-        Carbon::setLocale('es');
-        foreach ($albaranescli as $albaran) {
-            $albaran->ingreso = Carbon::parse($albaran->ingreso)->isoFormat('MMM D');
-        }
-        foreach ($albaranescli as $albaran) {
-            if (!empty($albaran->compromiso)) {
-                try {
-                    // Intenta crear la fecha con el formato esperado
-                    $fechaCompromiso = Carbon::createFromFormat('d/m/Y', $albaran->compromiso);
-                    $albaran->compromiso = $fechaCompromiso->isoFormat('MMM D');
-                } catch (InvalidFormatException $e) {
-                    // Si la fecha no está en el formato esperado, puedes decidir cómo manejarla
-                    // Por ejemplo, podrías dejar el valor sin cambios o asignar una fecha por defecto
-                    $albaran->compromiso = 'Fecha inválida';
-                }
-            }
-        }
         
         // Obtén los estados de los checkboxes
         $checkboxStates = CheckboxState::whereIn('codigo', $albaranescli->pluck('codigo'))->get();

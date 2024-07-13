@@ -1,3 +1,58 @@
+function updateAllCheckboxState(checked, codigo, checkboxes) {
+        const updates = Array.from(checkboxes).map(checkbox => {
+            return {
+                columna: checkbox.getAttribute('data-columna'),
+                valor: checked ? 1 : 0
+            };
+        });
+
+        fetch('/update-all-checkboxes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                codigo: codigo,
+                updates: updates
+            })
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        }).then(data => {
+            console.log(data);
+        }).catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+
+function attachRowSelectors() {
+        const rowSelectors = document.querySelectorAll('.select-all-row');
+        rowSelectors.forEach(selector => {
+            const row = selector.closest('tr');
+            const checkboxes = row.querySelectorAll('.row-checkbox');
+            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+            selector.checked = allChecked;
+            selector.addEventListener('change', function() {
+                const checked = selector.checked;
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = checked;
+                });
+                updateAllCheckboxState(checked, selector.getAttribute('data-codigo'), checkboxes);
+            });
+        });
+    }
+
+    attachRowSelectors();
+
+
+
+
+ 
+
 function updateCheckboxState(checkbox, codigo, columna) {
             const valor = checkbox.checked ? 1 : 0;
 
@@ -90,7 +145,7 @@ function updateEstado(event, input, codigo) {
         const row = document.querySelector(`tr input[type="hidden"][value="${checkboxState.codigo}"]`).closest('tr');
         if (row) {
             // Actualizar checkboxes
-            ['matriz','corte', 'pulido', 'perforado', 'pintado', 'empavonado','laminado'].forEach(field => {
+            ['matriz','corte', 'pulido', 'perforado', 'pintado', 'empavonado','curvado','laminado'].forEach(field => {
                 const checkbox = row.querySelector(`input[type="checkbox"][onchange*="${field}"]`);
                 if (checkbox) {
                     checkbox.checked = checkboxState[field];
@@ -104,4 +159,3 @@ function updateEstado(event, input, codigo) {
             }
         }
     }
-

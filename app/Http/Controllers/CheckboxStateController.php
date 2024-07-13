@@ -129,4 +129,54 @@ class CheckboxStateController extends Controller
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
+
+    // app/Http/Controllers/CheckboxStateController.php
+
+// app/Http/Controllers/CheckboxStateController.php
+
+    public function updateAllCheckboxes(Request $request)
+    {
+        Log::info('Received request', ['method' => $request->method(), 'data' => $request->all()]);
+
+        $codigo = $request->codigo;
+        $updates = $request->updates;
+
+        try {
+            DB::beginTransaction();
+
+            $checkboxState = CheckboxState::where('codigo', $codigo)->first();
+
+            if ($checkboxState) {
+                foreach ($updates as $update) {
+                    $columna = $update['columna'];
+                    $valor = $update['valor'];
+                    $checkboxState->setAttribute($columna, $valor);
+                }
+                $checkboxState->save();
+            } else {
+                $checkboxState = new CheckboxState();
+                $checkboxState->codigo = $codigo;
+                foreach ($updates as $update) {
+                    $columna = $update['columna'];
+                    $valor = $update['valor'];
+                    $checkboxState->setAttribute($columna, $valor);
+                }
+                $checkboxState->save();
+            }
+
+            DB::commit();
+            event(new CheckboxUpdated($checkboxState));
+            Log::info("Evento CheckboxUpdated disparado", ['checkboxState' => $checkboxState]);
+
+            return response()->json(['success' => true, 'data' => $checkboxState]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error updating checkbox state: " . $e->getMessage());
+            Log::error("Executed queries: " . json_encode(DB::getQueryLog()));
+
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+
 }
