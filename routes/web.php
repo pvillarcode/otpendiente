@@ -16,6 +16,7 @@ Route::get('/laminado', [AlbaranescliController::class, 'laminado'])->name('alba
 
 // Ruta para manejar las actualizaciones de los checkboxes
 Route::post('/update-checkbox', [CheckboxStateController::class, 'update'])->name('checkbox.update');
+Route::post('/update-all-checkboxes', [CheckboxStateController::class, 'updateAllCheckboxes'])->name('update-all-checkboxes');
 
 Route::get('/search-albaranescli', [AlbaranescliController::class, 'search'])->name('albaranescli.search');
 
@@ -58,6 +59,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+
+
 
 /*
 Route::get('/testevent',function(){

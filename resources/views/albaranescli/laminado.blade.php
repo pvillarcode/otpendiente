@@ -16,6 +16,7 @@
         <table class="striped">
             <thead>
                 <tr>
+                    <th></th>
                     <th>OT</th>
                     <th class="table-client-column">Cliente</th>
                     <th>OBS</th>
@@ -34,46 +35,56 @@
                 @foreach ($albaranescli as $albaran)
                 <tr>
                         <td>
+                            <label>
+                                <input type="checkbox" class="select-all-row" data-codigo="{{ $albaran->codigo }}"/>
+                                <span></span>
+                            </label>
+                        </td>
+                        <td>
                             <span class="short-code">{{ substr($albaran->codigo, -4) }}</span>
                             <input type="hidden" value="{{ $albaran->codigo }}">
                         </td>
-                        <td><span class="text-desc">{{ $albaran->nombrecliente }}</span></td>
+                        <td>
+                            <a href="https://www.angelini.guiaideas.com/EditAlbaranCliente?code={{ $albaran->idalbaran }}" target="_blank">
+                                <span class="text-desc">{{ $albaran->nombrecliente }}</span>
+                            </a>
+                        </td>
                         <td><span class="text-desc">{{ $albaran->observaciones }}</span></td>
                         <td>{{ $albaran->ingreso }}</td>
                         <td>{{ $albaran->compromiso }}</td>
                         <td>
                             <label>
-                                <input type="checkbox" {{ $albaran->matriz ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'matriz')"/>
+                                <input type="checkbox" class="row-checkbox" data-columna="matriz" {{ $albaran->matriz ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'matriz')"/>
                                 <span></span>
                             </label>
                         </td>
                         <td>
                             <label>
-                                <input type="checkbox" {{ $albaran->corte ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'corte')"/>
+                                <input type="checkbox" class="row-checkbox" data-columna="corte"  {{ $albaran->corte ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'corte')"/>
                                 <span></span>
                             </label>
                         </td>
                         <td>
                             <label>
-                                <input type="checkbox" {{ $albaran->pulido ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'pulido')"/>
+                                <input type="checkbox" class="row-checkbox" data-columna="pulido"  {{ $albaran->pulido ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'pulido')"/>
                                 <span></span>
                             </label>
                         </td>
                         <td>
                             <label>
-                                <input type="checkbox" {{ $albaran->pintado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'pintado')"/>
+                                <input type="checkbox" class="row-checkbox" data-columna="pintado"  {{ $albaran->pintado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'pintado')"/>
                                 <span></span>
                             </label>
                         </td>
                         <td>
                             <label>
-                                <input type="checkbox" {{ $albaran->curvado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'curvado')"/>
+                                <input type="checkbox" class="row-checkbox" data-columna="curvado"  {{ $albaran->curvado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'curvado')"/>
                                 <span></span>
                             </label>
                         </td>
                         <td>
                             <label>
-                                <input type="checkbox" {{ $albaran->laminado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'laminado')"/>
+                                <input type="checkbox"  class="row-checkbox" data-columna="laminado"  {{ $albaran->laminado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'laminado')"/>
                                 <span></span>
                             </label>
                         </td>
@@ -93,77 +104,119 @@
 
 @section('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('search');
-            searchInput.addEventListener('input', function() {
-                const query = searchInput.value;
-                const category = 'laminados';
-                if (query.length >= 3 || query.length === 0) {
-                    fetch(`/search-albaranescli?query=${query}&category=${category}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            const tbody = document.getElementById('albaranescli-body');
-                            tbody.innerHTML = '';
-                            data.forEach(albaran => {
-                                const tr = document.createElement('tr');
-                                tr.innerHTML = `
-                                    <td>
-                                        <span class="short-code">${albaran.codigo.slice(-4)}</span>
-                                        <input type="hidden" value="${albaran.codigo}">
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search');
+    let timeout = null;
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(timeout); // Limpiar el temporizador anterior
+
+        const query = searchInput.value;
+        const category = 'laminados';
+
+        timeout = setTimeout(function() {
+            if (query.length >= 3 || query.length === 0) {
+                fetch(`/search-albaranescli?query=${query}&category=${category}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const tbody = document.getElementById('albaranescli-body');
+                        tbody.innerHTML = '';
+                        data.forEach(albaran => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>
+                                    <label>
+                                        <input type="checkbox" class="select-all-row" data-codigo="${albaran.codigo}"/>
+                                        <span></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <span class="short-code">${albaran.codigo.slice(-4)}</span>
+                                    <input type="hidden" value="${albaran.codigo}">
+                                </td>
+                                <td>
+                                        <a href="https://www.angelini.guiaideas.com/EditAlbaranCliente?code=${albaran.idalbaran}" target="_blank">
+                                            <span class="text-desc">${albaran.nombrecliente}</span>
+                                        </a>
                                     </td>
-                                    <td><span class="text-desc">${albaran.nombrecliente}</span></td>
-                                    <td><span class="text-desc">${albaran.observaciones}</span></td>
-                                    <td>${albaran.ingreso}</td>
-                                    <td>${albaran.compromiso}</td>
-                                    <td>
-                                        <label>
-                                            <input type="checkbox" ${albaran.matriz ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'matriz')"/>
-                                            <span></span>
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <label>
-                                            <input type="checkbox" ${albaran.corte ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'corte')"/>
-                                            <span></span>
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <label>
-                                            <input type="checkbox" ${albaran.pulido ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'pulido')"/>
-                                            <span></span>
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <label>
-                                            <input type="checkbox" ${albaran.pintado ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'pintado')"/>
-                                            <span></span>
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <label>
-                                            <input type="checkbox" ${albaran.curvado ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'curvado')"/>
-                                            <span></span>
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <label>
-                                            <input type="checkbox" ${albaran.laminado ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.laminado}', 'laminado')"/>
-                                            <span></span>
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <input type="text" name="estado" value="${albaran.estado}"
-                                        onkeypress="updateEstado(event, this, '${albaran.estado}')"
-                                        oninput="updateEstado(event, this, '${albaran.estado}')"
-                                        onblur="updateEstado(event, this, '${albaran.estado}')">
-                                    </td>
-                                `;
-                                tbody.appendChild(tr);
-                            });
+                                <td><span class="text-desc">${albaran.observaciones}</span></td>
+                                <td>${albaran.ingreso}</td>
+                                <td>${albaran.compromiso}</td>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" class="row-checkbox" data-columna="matriz" ${albaran.matriz ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'matriz')"/>
+                                        <span></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" class="row-checkbox" data-columna="corte" ${albaran.corte ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'corte')"/>
+                                        <span></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" class="row-checkbox" data-columna="pulido" ${albaran.pulido ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'pulido')"/>
+                                        <span></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" class="row-checkbox" data-columna="pintado" ${albaran.pintado ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'pintado')"/>
+                                        <span></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" class="row-checkbox" data-columna="curvado" ${albaran.curvado ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'curvado')"/>
+                                        <span></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" class="row-checkbox" data-columna="laminado" ${albaran.laminado ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'laminado')"/>
+                                        <span></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <input type="text" name="estado" value="${albaran.estado}"
+                                    onkeypress="updateEstado(event, this, '${albaran.codigo}')"
+                                    oninput="updateEstado(event, this, '${albaran.codigo}')"
+                                    onblur="updateEstado(event, this, '${albaran.codigo}')">
+                                </td>
+                            `;
+                            tbody.appendChild(tr);
                         });
-                }
+
+                        // Reattach event listeners to new checkboxes
+                        attachRowSelectors();
+                    });
+            }
+        }, 1000); // Esperar 1 segundo antes de enviar la solicitud
+    });
+
+    function attachRowSelectors() {
+        const rowSelectors = document.querySelectorAll('.select-all-row');
+        rowSelectors.forEach(selector => {
+            const row = selector.closest('tr');
+            const checkboxes = row.querySelectorAll('.row-checkbox');
+            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+            selector.checked = allChecked;
+            selector.addEventListener('change', function() {
+                const checked = selector.checked;
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = checked;
+                });
+                updateAllCheckboxState(checked, selector.getAttribute('data-codigo'), checkboxes);
             });
         });
+    }
+
+    // Initial attachment of event listeners
+    attachRowSelectors();
+});
+
+
 
 </script>
 @endsection
