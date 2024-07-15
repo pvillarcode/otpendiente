@@ -142,13 +142,23 @@ function updateEstado(event, input, codigo) {
     });
 
     function updateUIFromPusherEvent(checkboxState) {
-        const row = document.querySelector(`tr input[type="hidden"][value="${checkboxState.codigo}"]`).closest('tr');
+    const hiddenInput = document.querySelector(`tr input[type="hidden"][value="${checkboxState.codigo}"]`);
+    if (hiddenInput) {
+        const row = hiddenInput.closest('tr');
         if (row) {
+            const isIndexView = document.body.classList.contains('index-view');
+            
             // Actualizar checkboxes
-            ['matriz','corte', 'pulido', 'perforado', 'pintado', 'empavonado','curvado','laminado'].forEach(field => {
+            ['matriz', 'corte', 'pulido', 'perforado', 'pintado', 'empavonado', 'curvado', 'laminado'].forEach(field => {
                 const checkbox = row.querySelector(`input[type="checkbox"][onchange*="${field}"]`);
-                if (checkbox) {
-                    checkbox.checked = checkboxState[field];
+                if (checkbox) {                    
+                    if (isIndexView) {
+                        checkbox.checked = checkboxState[field];
+                        const parentLabel = checkbox.parentElement;
+                        if (parentLabel) {
+                            parentLabel.style.display = checkboxState[`disabled_${field}`] ? 'none' : '';
+                        }
+                    }
                 }
             });
 
@@ -158,4 +168,7 @@ function updateEstado(event, input, codigo) {
                 estadoInput.value = checkboxState.estado || '';
             }
         }
+    } else {
+        console.error(`No se encontró el elemento oculto con el valor ${checkboxState.codigo}`);
     }
+}

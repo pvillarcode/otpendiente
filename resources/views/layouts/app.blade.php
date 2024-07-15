@@ -14,10 +14,10 @@
         @include('partials.shared_styles')
     </style>
 </head>
-<body>
+<body class="@yield('body-class', '')">
     <div class="container">
         <div class="header-container">
-            <h1>FLUJO DE PRODUCCIÓN</h1>
+            <h1>@yield('header-title', 'FLUJO DE PRODUCCIÓN')</h1>
             <img src="https://www.favitorr.cl/wp-content/uploads/logo-favitorr.png" alt="Favitorr Logo" class="logo">
         </div>
 

@@ -34,6 +34,21 @@ class AlbaranescliController extends Controller
         return view('albaranescli.laminado', compact('albaranescli')); // Ajusta el nombre de la vista según tu aplicación
     }
 
+    public function admintemp()
+    {
+        $defaultRequest = new Request(['category' => 'templados']);
+        $albaranescli = $this->getDataForTab($defaultRequest);
+    
+        return view('albaranescli.admintemplado', compact('albaranescli'));
+    }
+
+    public function adminlam()
+    {
+        $defaultRequest = new Request(['category' => 'laminados']);
+        $albaranescli = $this->getDataForTab($defaultRequest);
+    
+        return view('albaranescli.adminlaminado', compact('albaranescli'));
+    }
     /**
      * Obtiene datos según la categoría seleccionada.
      *
@@ -95,7 +110,6 @@ class AlbaranescliController extends Controller
 
             if ($state) {
                 $albaran->matriz = $state->matriz;
-                $albaran->matriz = $state->matriz;
                 $albaran->corte = $state->corte;
                 $albaran->pulido = $state->pulido;
                 $albaran->perforado = $state->perforado;
@@ -103,25 +117,26 @@ class AlbaranescliController extends Controller
                 $albaran->curvado = $state->curvado;
                 $albaran->empavonado = $state->empavonado;
                 $albaran->laminado = $state->laminado;
+
                 if(!empty($state->estado)){
                     $albaran->estado = $state->estado;
                 } else {
                     $albaran->estado = '';
                 }
-                 
-                $albaran->pintado = $state->pintado;
-                $albaran->curvado = $state->curvado;
-                $albaran->empavonado = $state->empavonado;
-                $albaran->laminado = $state->laminado;
-                if(!empty($state->estado)){
-                    $albaran->estado = $state->estado;
-                } else {
-                    $albaran->estado = '';
-                }
-                 
+                
+                $albaran->disabled_matriz =     $state->disabled_matriz;
+                $albaran->disabled_corte =      $state->disabled_corte;
+                $albaran->disabled_pulido =     $state->disabled_pulido;
+                $albaran->disabled_perforado =  $state->disabled_perforado;
+                $albaran->disabled_pintado =    $state->disabled_pintado;
+                $albaran->disabled_curvado =    $state->disabled_curvado;
+                $albaran->disabled_empavonado = $state->disabled_empavonado;
+                $albaran->disabled_laminado =   $state->disabled_laminado;
+
+
+                                  
 
             } else {
-                $albaran->matriz = false;
                 $albaran->matriz = false;
                 $albaran->corte = false;
                 $albaran->pulido = false;
@@ -131,15 +146,16 @@ class AlbaranescliController extends Controller
                 $albaran->laminado = false;
                 $albaran->empavonado = false;
                 $albaran->estado = '';
-                $albaran->pintado = false;
-                $albaran->curvado = false;
-                $albaran->laminado = false;
-                $albaran->empavonado = false;
-                $albaran->estado = '';
+                $albaran->disabled_matriz =     false;
+                $albaran->disabled_corte =      false;
+                $albaran->disabled_pulido =     false;
+                $albaran->disabled_perforado =  false;
+                $albaran->disabled_pintado =    false;
+                $albaran->disabled_curvado =    false;
+                $albaran->disabled_empavonado = false;
+                $albaran->disabled_laminado =   false;
             }
         }
-        
-        return $albaranescli;
         
         return $albaranescli;
     }
@@ -209,7 +225,6 @@ class AlbaranescliController extends Controller
             $state = $checkboxStates->where('codigo', $albaran->codigo)->first();
             if ($state) {
                 $albaran->matriz = $state->matriz;
-                $albaran->matriz = $state->matriz;
                 $albaran->corte = $state->corte;
                 $albaran->pulido = $state->pulido;
                 $albaran->perforado = $state->perforado;
@@ -218,13 +233,17 @@ class AlbaranescliController extends Controller
                 $albaran->curvado = $state->curvado;
                 $albaran->laminado = $state->laminado;
                 $albaran->estado = $state->estado ?? '';
-                $albaran->empavonado = $state->empavonado;
-                $albaran->pintado = $state->pintado;
-                $albaran->curvado = $state->curvado;
-                $albaran->laminado = $state->laminado;
-                $albaran->estado = $state->estado ?? '';
+
+                $albaran->disabled_matriz =     $state->disabled_matriz;
+                $albaran->disabled_corte =      $state->disabled_corte;
+                $albaran->disabled_pulido =     $state->disabled_pulido;
+                $albaran->disabled_perforado =  $state->disabled_perforado;
+                $albaran->disabled_pintado =    $state->disabled_pintado;
+                $albaran->disabled_curvado =    $state->disabled_curvado;
+                $albaran->disabled_empavonado = $state->disabled_empavonado;
+                $albaran->disabled_laminado =   $state->disabled_laminado;
+
             } else {
-                $albaran->matriz = false;
                 $albaran->matriz = false;
                 $albaran->corte = false;
                 $albaran->pulido = false;
@@ -234,17 +253,56 @@ class AlbaranescliController extends Controller
                 $albaran->empavonado = false;
                 $albaran->laminado = false;
                 $albaran->estado = '';
-                $albaran->pintado = false;
-                $albaran->curvado = false;
-                $albaran->empavonado = false;
-                $albaran->laminado = false;
-                $albaran->estado = '';
+
+                $albaran->disabled_matriz =     false;
+                $albaran->disabled_corte =      false;
+                $albaran->disabled_pulido =     false;
+                $albaran->disabled_perforado =  false;
+                $albaran->disabled_pintado =    false;
+                $albaran->disabled_curvado =    false;
+                $albaran->disabled_empavonado = false;;
+                $albaran->disabled_laminado =   false;
             }
         }
         return response()->json($albaranescli);
     }
     
-    // Otros métodos como search y updateCheckboxState se mantienen igual
-    
-    // Otros métodos como search y updateCheckboxState se mantienen igual
+    public function updateDisabled(Request $request)
+    {
+        $codigo = $request->codigo;
+        $updates = $request->updates;
+
+        try {
+            DB::beginTransaction();
+
+            $checkboxState = CheckboxState::where('codigo', $codigo)->first();
+
+            if ($checkboxState) {
+                foreach ($updates as $update) {
+                    $columna = $update['columna'];
+                    $valor = $update['valor'];
+                    $checkboxState->setAttribute($columna, $valor);
+                }
+                $checkboxState->save();
+            } else {
+                $checkboxState = new CheckboxState();
+                $checkboxState->codigo = $codigo;
+                foreach ($updates as $update) {
+                    $columna = $update['columna'];
+                    $valor = $update['valor'];
+                    $checkboxState->setAttribute($columna, $valor);
+                }
+                $checkboxState->save();
+            }
+
+            DB::commit();
+            event(new CheckboxUpdated($checkboxState));
+
+            return response()->json(['success' => true, 'data' => $checkboxState]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
 }

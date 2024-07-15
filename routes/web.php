@@ -12,12 +12,14 @@ use App\Events\CheckboxUpdated;
 //Route::get('/albaranescli', [AlbaranescliController::class, 'index'])->name('albaranescli.index');
 Route::get('/albaranescli', [AlbaranescliController::class, 'index'])->name('albaranescli.index')->middleware('auth');
 Route::get('/laminado', [AlbaranescliController::class, 'laminado'])->name('albaranescli.laminado')->middleware('auth');
+Route::get('/albaranescli/admintemp', [AlbaranescliController::class, 'admintemp'])->name('albaranescli.admintemp');
+Route::get('/albaranescli/adminlam', [AlbaranescliController::class, 'adminlam'])->name('albaranescli.adminlam');
 
 
 // Ruta para manejar las actualizaciones de los checkboxes
 Route::post('/update-checkbox', [CheckboxStateController::class, 'update'])->name('checkbox.update');
 Route::post('/update-all-checkboxes', [CheckboxStateController::class, 'updateAllCheckboxes'])->name('update-all-checkboxes');
-
+Route::post('/update-disabled-checkbox', [CheckboxStateController::class, 'updateDisabled']);
 Route::get('/search-albaranescli', [AlbaranescliController::class, 'search'])->name('albaranescli.search');
 
 Route::post('/update-estado', [CheckboxStateController::class, 'updateEstado'])->name('estado.update');

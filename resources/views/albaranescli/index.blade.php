@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Templados')
-
+@section('body-class', 'index-view')
 @section('additional_styles')
 <style>
     /* Estilos específicos para templados */
@@ -52,34 +52,44 @@
                         <td>{{ $albaran->ingreso }}</td>
                         <td>{{ $albaran->compromiso }}</td>
                         <td>
+                            @if(!$albaran->disabled_corte)
                             <label>
                                 <input type="checkbox" class="row-checkbox" data-columna="corte" {{ $albaran->corte ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'corte')"/>
                                 <span></span>
                             </label>
+                            @endif
                         </td>
                         <td>
+                            @if(!$albaran->disabled_pulido)
                             <label>
                                 <input type="checkbox" class="row-checkbox" data-columna="pulido" {{ $albaran->pulido ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'pulido')"/>
                                 <span></span>
                             </label>
+                            @endif
                         </td>
                         <td>
+                            @if(!$albaran->disabled_perforado)
                             <label>
                                 <input type="checkbox" class="row-checkbox" data-columna="perforado" {{ $albaran->perforado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'perforado')"/>
                                 <span></span>
                             </label>
+                            @endif
                         </td>
                         <td>
+                            @if(!$albaran->disabled_pintado)
                             <label>
                                 <input type="checkbox" class="row-checkbox" data-columna="pintado" {{ $albaran->pintado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'pintado')"/>
                                 <span></span>
                             </label>
+                            @endif
                         </td>
                         <td>
+                            @if(!$albaran->disabled_empavonado)
                             <label>
                                 <input type="checkbox" class="row-checkbox" data-columna="empavonado" {{ $albaran->empavonado ? 'checked' : '' }} onchange="updateCheckboxState(this, '{{ $albaran->codigo }}', 'empavonado')"/>
                                 <span></span>
                             </label>
+                            @endif
                         </td>
                         <td>
                         <input type="text" name="estado" value="{{ $albaran->estado }}"
@@ -101,8 +111,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let timeout = null;
 
-
-    
     searchInput.addEventListener('input', function() {
         clearTimeout(timeout);
         const query = searchInput.value;
@@ -127,39 +135,39 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <input type="hidden" value="${albaran.codigo}">
                                 </td>
                                 <td>
-                                        <a href="https://www.angelini.guiaideas.com/EditAlbaranCliente?code=${albaran.idalbaran}" target="_blank">
-                                            <span class="text-desc">${albaran.nombrecliente}</span>
-                                        </a>
-                                    </td>
+                                    <a href="https://www.angelini.guiaideas.com/EditAlbaranCliente?code=${albaran.idalbaran}" target="_blank">
+                                        <span class="text-desc">${albaran.nombrecliente}</span>
+                                    </a>
+                                </td>
                                 <td><span class="text-desc">${albaran.observaciones}</span></td>
                                 <td>${albaran.ingreso}</td>
                                 <td>${albaran.compromiso}</td>
                                 <td>
-                                    <label>
+                                    <label ${albaran.disabled_corte ? 'style="display:none;"' : ''}>
                                         <input type="checkbox" class="row-checkbox" data-columna="corte" ${albaran.corte ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'corte')"/>
                                         <span></span>
                                     </label>
                                 </td>
                                 <td>
-                                    <label>
+                                    <label ${albaran.disabled_pulido ? 'style="display:none;"' : ''}>
                                         <input type="checkbox" class="row-checkbox" data-columna="pulido" ${albaran.pulido ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'pulido')"/>
                                         <span></span>
                                     </label>
                                 </td>
                                 <td>
-                                    <label>
+                                    <label ${albaran.disabled_perforado ? 'style="display:none;"' : ''}>
                                         <input type="checkbox" class="row-checkbox" data-columna="perforado" ${albaran.perforado ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'perforado')"/>
                                         <span></span>
                                     </label>
                                 </td>
                                 <td>
-                                    <label>
+                                    <label ${albaran.disabled_pintado ? 'style="display:none;"' : ''}>
                                         <input type="checkbox" class="row-checkbox" data-columna="pintado" ${albaran.pintado ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'pintado')"/>
                                         <span></span>
                                     </label>
                                 </td>
                                 <td>
-                                    <label>
+                                    <label ${albaran.disabled_empavonado ? 'style="display:none;"' : ''}>
                                         <input type="checkbox" class="row-checkbox" data-columna="empavonado" ${albaran.empavonado ? 'checked' : ''} onchange="updateCheckboxState(this, '${albaran.codigo}', 'empavonado')"/>
                                         <span></span>
                                     </label>
@@ -196,4 +204,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
 @endsection

@@ -62,41 +62,7 @@ class CheckboxStateController extends Controller
         }
     }
 
-    /**
-     * Actualiza el estado de un campo de texto en la base de datos SQLite.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     *
-    public function updateEstado(Request $request)
-    {
-        $codigo = $request->codigo;
-        $columna = $request->columna;
-        $valor = $request->valor;
 
-        // Buscar el estado actual en SQLite
-        $checkboxState = CheckboxState::where('codigo', $codigo)->first();
-
-        \Log::info("Updating checkbox state: codigo={$codigo}, columna={$columna}, valor={$valor}");
-
-        // Si no existe, crear un nuevo registro
-        if (!$checkboxState) {
-            $checkboxState = new CheckboxState();
-            $checkboxState->codigo = $codigo;
-        }
-
-        // Actualizar el campo de texto
-
-        $checkboxState = CheckboxState::updateOrCreate(
-            ['codigo' => $codigo],
-            [$columna => $valor]
-        );
-        
-        \Log::info("Updated checkbox state: " . $checkboxState->toJson());
-
- 
-        return response()->json(['success' => true]);
-    }*/
 
     public function updateEstado(Request $request)
     {
@@ -178,5 +144,21 @@ class CheckboxStateController extends Controller
         }
     }
 
+    public function updateDisabled(Request $request)
+    {
+        $codigo = $request->input('codigo');
+        $column = $request->input('column');
+        $disabled = $request->input('disabled');
+
+        $checkboxState = CheckboxState::where('codigo', $codigo)->first();
+        if ($checkboxState) {
+            $checkboxState->$column = $disabled;
+            $checkboxState->save();
+
+            event(new CheckboxStateUpdated($checkboxState));
+        }
+
+        return response()->json(['success' => true]);
+    }
 
 }
