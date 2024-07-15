@@ -151,6 +151,7 @@
         <input type="hidden" name="monto_neto" value="{{ $factura->neto }}">
         <input type="hidden" name="total_iva" value="{{ $factura->totaliva }}">
         <input type="hidden" name="monto_total" value="{{ $factura->total }}">
+        <input type="hidden" name="codigo" value="{{ $factura->codigo }}">
         <div class="row">
             <div class="input-field col s12">
                 <button type="submit" class="btn waves-effect waves-light">Guardar Factura</button>

@@ -63,6 +63,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/facturas', [FacturasController::class, 'index'])->name('facturas.index');
 Route::get('/facturas/detalle/{codigo?}', [FacturasController::class, 'detalleFactura'])->name('facturas.detalle');
+Route::get('/facturas/descargar/{folio?}', [FacturasController::class, 'descargarFactura'])->name('facturas.descargar');
 Route::post('/enviar-factura', [FacturasController::class, 'enviarFactura'])->name('enviar.factura');
 
 /*

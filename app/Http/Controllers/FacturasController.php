@@ -6,6 +6,8 @@ use App\Models\LineaFacturaCli;
 use App\Models\Cliente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Client\Response;
 
 class FacturasController extends Controller
 {
@@ -15,7 +17,9 @@ class FacturasController extends Controller
         ->orderBy('hora', 'desc')
         ->limit(50)
         ->get();
-        return view('facturas.index', compact('facturascli'));
+        $facturasExistentes = DB::table('facturas')->pluck('codigo')->toArray();
+
+        return view('facturas.index', compact('facturascli', 'facturasExistentes'));
     }
 
     // En FacturasController
@@ -24,6 +28,7 @@ class FacturasController extends Controller
     {
         $factura = null;
         $lineas = [];
+        $cliente = null;
         if (!is_null($codigo)) {
             $factura = FacturaCli::where('codigo', $codigo)->first();
             if ($factura) {
@@ -37,40 +42,26 @@ class FacturasController extends Controller
     public function enviarFactura(Request $request)
     {
         $data = $request->all();
-        $tipoDTE = (int) $request->input('tipo_dte', 33);  // 33 es el valor predeterminado si no se especifica
-        $fmaPago = (int) $request->input('forma_pago', 1); 
-        $detalles = [];
-        $montoNeto = 0;
-
+        $tipoDte = (int) $request->input('tipo_dte', 33);
+        
+        $productos = [];
         if (isset($data['productos'])) {
-            foreach ($data['productos'] as $index => $producto) {
-                $detalles[] = [
-                    "NroLinDet" => $index + 1,
-                    "DscItem" => $producto['descripcion'] ?? '',
-                    "NmbItem" => $producto['referencia'] ?? '',
-                    "QtyItem" => $producto['cantidad'] ?? '0',
-                    "UnmdItem" => 'un',
-                    "PrcItem" => $producto['precio'] ?? '0',
-                    "MontoItem" => strval(($producto['precio'] ?? 0) * ($producto['cantidad'] ?? 0))
+            foreach ($data['productos'] as $producto) {
+                $precioConIva = isset($producto['precio']) ? round($producto['precio'] * 1.19) : 0;
+                $productos[] = [
+                    "cantidad" => $producto['cantidad'] ?? 0,
+                    "nombre" => $producto['referencia'] ?? '',
+                    "descripcion" => $producto['descripcion'] ?? '',
+                    "precioUnitario" => $precioConIva,
+                    "exento" => $producto['exento'] ?? false
                 ];
             }
         }
 
-        $montoNeto = (int) $request->input('monto_neto');
-        $totalIva = (int) $request->input('total_iva');
-        $montoTotal = (int) $request->input('monto_total');
-       
-        $tieneReferencias = isset($data['referencias']) && is_array($data['referencias']) && count($data['referencias']) > 0;
         $referencias = [];
-    
-        // Procesar referencias
-        $tieneReferencias = false;
-        $referencias = [];
-
         if (isset($data['referencias']) && is_array($data['referencias']) && count($data['referencias']) > 0) {
             foreach ($data['referencias'] as $referencia) {
-                if (!empty($referencia['tipo_documento']) || !empty($referencia['folio_ref']) || !empty($referencia['fecha_ref']) || !empty($referencia['razon_referencia'])) {
-                    $tieneReferencias = true;
+                if(isset($referencia['tipo_documento'])){
                     $referencias[] = [
                         "codigoTipoDteReferencia" => (int)$referencia['tipo_documento'],
                         "folioReferencia" => $referencia['folio_ref'],
@@ -80,56 +71,64 @@ class FacturasController extends Controller
                 }
             }
         }
-        
-        $iva = ceil($montoNeto * 0.19);
-        // Monto total es la suma del monto neto más el IVA
-        $montoTotal = $montoNeto + $iva;
 
         $jsonRequest = [
-            "Documento" => [
-                "Encabezado" => [
-                    "IdDoc" => [
-                        "TipoDTE" => $tipoDTE ?? 39,  // Corrección de la clave aquí
-                        "FchEmis" => $data['fecha_emision'] ?? date('Y-m-d'),  // Corrección de la clave aquí
-                        "FchVenc" => $data['fecha_vencimiento'] ?? date('Y-m-d'),  // Corrección de la clave aquí
-                        "FmaPago" => $fmaPago ?? 1
-                    ],
-                    "Emisor" => [
-                        "RUTEmisor" => "76269769-6",
-                        "RznSocEmisor" => "Chilesystems",
-                        "GiroEmisor" => "Desarrollo de software",
-                        "DirOrigen" => "Calle 7 numero 3",
-                        "CmnaOrigen" => "Santiago"
-                    ],
-                    "Receptor" => [
-                        "RUTRecep" => $data['rut_recep'] ?? '',
-                        "RznSocRecep" => $data['razon_social_recep'] ?? '',
-                        "DirRecep" => $data['dir_recep'] ?? '',
-                        "CmnaRecep" => $data['cmna_recep'] ?? '',
-                        "CiudadRecep" => $data['ciudad_recep'] ?? '',
-                        "CorreoRecep" => $data['correo_recep'] ?? '',
-                    ],
-                    "Totales" => [
-                        "MntNeto" => strval((int)$montoNeto),
-                        "IVA" => strval((int)$iva),
-                        "MntTotal" => strval((int)$montoTotal)
-                    ]
-                ],
-                "Detalle" => $detalles,  // Asumiendo que 'detalle' es un array de productos
+            "credenciales" => [
+                "rutEmisor" => "76269769-6",
+                "rutContribuyente" => "17432554-5",
+                "nombreSucursal" => "Casa Matriz"
             ],
-            "Observaciones" => $data['observaciones'] ?? '',
-            "Cajero" => $data['cajero'] ?? '',
-            "TipoPago" => $data['tipo_pago'] ?? 'CONTADO'
+            "dte" => [
+                "codigoTipoDte" => $tipoDte,
+                "indicadorMontosNetos" => false,
+                "formaPago" => (int) $request->input('forma_pago', 2),
+                "descuentoGlobal" => 0,
+                "fechaEmision" => $data['fecha_emision'] ?? date('Y-m-d'),
+                "diasVencimiento" => 30,
+                "tieneIvaTerceros" => false,
+                "ivaTerceros" => 0,
+                "ivaPropio" => 0,
+                "productos" => $productos
+            ]
         ];
-        if ($tieneReferencias) {
-            $jsonRequest['Documento']['Encabezado']['TieneReferencias'] = true;
-            $jsonRequest['Documento']['Encabezado']['Referencias'] = $referencias;
+
+        if (count($referencias) > 0) {
+            $jsonRequest["dte"]["tieneReferencias"] = true;
+            $jsonRequest["dte"]["referencias"] = $referencias;
         }
+
         $jsonOutput = json_encode($jsonRequest, JSON_PRETTY_PRINT);
-        return response($jsonOutput, 200)->header('Content-Type', 'application/json');
-        dd($jsonRequest);
+
+        // Simulando la respuesta
+        $simulatedResponse = [
+            "status" => 200,
+            "message" => "Con fecha 13-07-2024 13:22:55, se emitió el DTE tipo FACTURA ELECTRONICA número 4903 desde la sucursal Casa Matriz del emisor ",
+            "data" => [
+                "folio" => 4903,
+                "fechaEmision" => "09-01-2024"
+            ],
+            "errors" => null
+        ];
+
+        if ($simulatedResponse['status'] == 200 && is_null($simulatedResponse['errors'])) {
+            DB::table('facturas')->insert([
+                'codigo' => $request->input('codigo'),
+                'tipo_dte' => $tipoDte,
+                'folio' => $simulatedResponse['data']['folio'],
+                'fechaEmision' => $simulatedResponse['data']['fechaEmision'],
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
+
+        return response()->json($simulatedResponse, 200);
+
+        //return response($jsonOutput, 200)->header('Content-Type', 'application/json');
+
+        
+
         // Enviar el request a la API
-        $response = Http::post('https://api.example.com/factura', $jsonRequest);
+        //$response = Http::post('https://api.example.com/factura', $jsonRequest);
 
         return response()->json([
             'status' => $response->successful(),
@@ -137,4 +136,44 @@ class FacturasController extends Controller
         ]);
     }
 
+    public function descargarFactura($codigo)
+    {
+        $factura = DB::table('facturas')->where('codigo', $codigo)->first();
+
+        if (!$factura) {
+            return response()->json(['error' => 'Factura no encontrada'], 404);
+        }
+
+        $jsonRequest = [
+            "credenciales" => [
+                "rutEmisor" => "76269769-6",
+                "nombreSucursal" => "Casa Matriz"
+            ],
+            "dteReferenciadoExterno" => [
+                "folio" => (int)$factura->folio,
+                "codigoTipoDte" => (int)$factura->tipo_dte,
+                "ambiente" => 0
+            ]
+        ];
+
+        $jsonOutput = json_encode($jsonRequest, JSON_PRETTY_PRINT);
+        //return response($jsonOutput, 200)->header('Content-Type', 'application/json');
+        $username = config('services.simplefactura.username');
+        $password = config('services.simplefactura.password');
+        $authorization = base64_encode("{$username}:{$password}");
+    
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => "Basic {$authorization}",
+        ])->post('https://api.simplefactura.cl/dte/pdf', $jsonRequest);
+
+        if ($response->successful()) {
+            return response($response->body(), 200)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'inline; filename="factura.pdf"');
+        }
+
+        return response()->json(['error' => 'No se pudo descargar el PDF'], 500);
+    
+    }
 }

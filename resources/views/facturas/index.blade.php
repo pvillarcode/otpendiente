@@ -22,7 +22,11 @@
                         <td class="text-desc">{{ $factura->observaciones }}</td>
                         <td>{{ $factura->total }}</td>
                         <td>
-                            <a href="/facturas/detalle/{{ $factura->codigo }}" class="btn btn-primary">Facturar</a>
+                        @if(in_array($factura->codigo, $facturasExistentes))
+                            <a href="{{ route('facturas.descargar', $factura->codigo) }}" class="btn blue">DESCARGAR</a>
+                        @else
+                            <a href="/facturas/detalle/{{ $factura->codigo }}" class="btn btn-primary">FACTURAR</a>
+                        @endif
                         </td>
                     </tr>
                 @endforeach
